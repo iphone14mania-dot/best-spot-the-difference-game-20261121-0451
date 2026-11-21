@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Twin Peaks — Spot the Difference</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">◐</span>
+    <span class="brand-name">TWIN PEAKS</span>
+    <span class="brand-sub">Spot the Difference</span>
+  </div>
+  <button id="mute-btn" class="btn small" type="button">Sound ON (S)</button>
+</header>
+
+<!-- ============ MENU ============ -->
+<main id="screen-menu" class="screen show">
+  <section class="hero">
+    <h1>Two pictures. Nine differences.<br>One sharp eye.</h1>
+    <p class="hero-sub">Every scene is painted twice — nearly identical, never quite. Find all nine
+      differences before the clock runs out. Click a difference on either picture to mark it.</p>
+    <p class="hero-stats"><span id="total-diffs"></span> · <span id="total-stars"></span></p>
+  </section>
+
+  <section class="preview-strip">
+    <div class="preview-frame"><canvas id="preview-left"></canvas><span>LEFT</span></div>
+    <div class="preview-vs">VS</div>
+    <div class="preview-frame"><canvas id="preview-right"></canvas><span>RIGHT</span></div>
+    <p class="preview-caption">Harbor Morning — the two panels always sit side by side. Nine things differ.</p>
+  </section>
+
+  <section class="difficulty">
+    <h2>How hard?</h2>
+    <div class="diff-row">
+      <button class="diff-btn" data-diff="easy" type="button">Easy</button>
+      <button class="diff-btn active" data-diff="normal" type="button">Normal</button>
+      <button class="diff-btn" data-diff="hard" type="button">Hard</button>
+    </div>
+    <p id="diff-blurb" class="diff-blurb"></p>
+  </section>
+
+  <section class="scenes">
+    <h2>Pick a scene <span class="hint-keys">or press 1–6</span></h2>
+    <div id="scene-grid" class="scene-grid"></div>
+  </section>
+
+  <section class="howto">
+    <h2>How to play</h2>
+    <ul>
+      <li><b>Mouse:</b> click a difference on either picture. A red ring marks each find.</li>
+      <li><b>Keyboard:</b> arrow keys move the crosshair, Enter clicks, Tab swaps pictures.</li>
+      <li><b>Hint (H):</b> pulses a ring around one unfound difference. Costs 50 points, 30s cooldown.</li>
+      <li><b>Lens (M):</b> a 2x magnifier that follows your mouse over the pictures.</li>
+      <li><b>Scoring:</b> +100 per find, combo bonus for quick finds in a row, −25 for a wrong click, time bonus at the win.</li>
+    </ul>
+  </section>
+</main>
+
+<!-- ============ PLAY ============ -->
+<main id="screen-play" class="screen">
+  <section class="hud">
+    <div class="hud-left">
+      <span id="hud-scene" class="hud-scene"></span>
+      <span id="hud-diff" class="hud-diff"></span>
+    </div>
+    <div class="hud-center">
+      <span id="counter" class="counter"></span>
+      <span id="counter-dots" class="counter-dots"></span>
+    </div>
+    <div class="hud-right">
+      <span class="score-box">Score <b id="score">0</b></span>
+      <span id="combo" class="combo"></span>
+    </div>
+  </section>
+
+  <section class="timer-row">
+    <div class="timer-track"><div id="timer-bar" class="timer-bar"></div></div>
+    <span id="timer-text" class="timer-text">05:00</span>
+  </section>
+
+  <section class="panels">
+    <div id="panel-left" class="panel">
+      <canvas id="canvas-left"></canvas>
+      <canvas id="overlay-left" class="overlay"></canvas>
+      <span class="panel-label">LEFT · ORIGINAL</span>
+    </div>
+    <div id="panel-right" class="panel">
+      <canvas id="canvas-right"></canvas>
+      <canvas id="overlay-right" class="overlay"></canvas>
+      <span class="panel-label">RIGHT · CHANGED</span>
+    </div>
+  </section>
+
+  <section class="controls">
+    <button id="hint-btn" class="btn" type="button">Hint (H) · <span id="hint-count">3</span> left</button>
+    <button id="lens-btn" class="btn" type="button">Lens (M)</button>
+    <button id="restart-btn" class="btn" type="button">Restart (R)</button>
+    <button id="menu-btn" class="btn" type="button">Menu (Esc)</button>
+    <span class="controls-note">Arrows move · Enter clicks · Tab swaps pictures</span>
+  </section>
+
+  <div id="toast" class="toast"></div>
+
+  <div id="modal-win" class="modal">
+    <div class="modal-card">
+      <h2>Scene complete!</h2>
+      <div id="win-stars" class="win-stars"></div>
+      <table class="win-table">
+        <tr><td>Score</td><td id="win-score"></td></tr>
+        <tr><td>Time</td><td id="win-time"></td></tr>
+        <tr><td>Accuracy</td><td id="win-accuracy"></td></tr>
+        <tr><td>Time bonus</td><td id="win-bonus"></td></tr>
+        <tr><td>Best on this scene</td><td id="win-best"></td></tr>
+      </table>
+      <div class="modal-actions">
+        <button id="next-btn" class="btn primary" type="button">Next scene</button>
+        <button id="again-btn" class="btn" type="button">Play again</button>
+        <button id="win-menu-btn" class="btn" type="button">Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-timeout" class="modal">
+    <div class="modal-card">
+      <h2>Time's up!</h2>
+      <p>You found <b id="timeout-found"></b> differences and scored <b id="timeout-score"></b> points.</p>
+      <p class="modal-sub">The unfound ones stay hidden — try the scene again, or take a hint earlier next time.</p>
+      <div class="modal-actions">
+        <button id="retry-btn" class="btn primary" type="button">Try again</button>
+        <button id="timeout-menu-btn" class="btn" type="button">Menu</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="lens" class="lens"><canvas id="lens-canvas"></canvas></div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
